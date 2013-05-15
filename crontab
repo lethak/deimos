@@ -1,0 +1,37 @@
+#### DEIMOS CORP ####
+DEIMOSCLI=/xxxxxxxxxxxxxxxxxxxx/cli
+
+## Teamspeak actions
+#*/4 * * * * cd $DEIMOSCLI && $PHP teamspeak.php --action AFKBOT --nickname AFK_BOT
+#*/5 * * * * cd $DEIMOSCLI && $PHP teamspeak.php --action SURVEY --nickname SURVEY_BOT
+#*/52 * * * * cd $DEIMOSCLI && $PHP teamspeak.php --action STATS_LONG --nickname STATS_L_BOT
+#*/6 * * * * cd $DEIMOSCLI && $PHP teamspeak.php --action STATS_SHORT --nickname STATS_S_BOT
+##*/3 * * * * cd $DEIMOSCLI && $PHP teamspeak.php --action DEIMOSBOT --nickname DEIMOS_BOT
+##0 4,16 * * * cd $DEIMOSCLI && $PHP teamspeak.php --action CLIENTS_STATS --nickname CLIENT_STAT_BOT
+
+## Tscan V2 (teamspeak)
+* * * * * cd $DEIMOSCLI && $PHP tscan.php --action SURVEY --nickname SURVEY2_BOT > /dev/null
+1,11,21,31,41,51 * * * * cd $DEIMOSCLI && $PHP tscan.php --action CACHE_SHORT
+35 * * * * cd $DEIMOSCLI && $PHP tscan.php --action CACHE_LONG
+25 1,13 * * * cd $DEIMOSCLI && $PHP tscan.php --action CLIENTS_STATS
+43 2 * * * cd $DEIMOSCLI && $PHP tscan.php --action SURVEY_ARCHIVATE
+*/10 * * * * cd $DEIMOSCLI && $PHP tscan.php --action DEIMOS_BOT --nickname DEIMOS_SYSTEM --isEnforcingIdentityConfirmation 1
+
+# Pscan (planetside2)
+1 */2 * * * cd $DEIMOSCLI && $PHP pscan.php --action OUTFIT_DEIMOS > /dev/null
+4 */4 * * * cd $DEIMOSCLI && $PHP pscan.php --action PLAYERS_DEIMOS > /dev/null
+40 */4 * * * cd $DEIMOSCLI && $PHP pscan.php --action ARMORY_DEIMOS > /dev/null
+* * * * * cd $DEIMOSCLI && $PHP pscan.php --action DEIMOS_TRACKER > /dev/null
+
+35 1 * * * cd $DEIMOSCLI && $PHP pscan.php --action OUTFIT_ARRAY > /dev/null
+45 1 * * 7 cd $DEIMOSCLI && $PHP pscan.php --action OUTFIT_ARRAY_PLAYERS > /dev/null
+30 6 * * * cd $DEIMOSCLI && $PHP pscan.php --action OUTFIT_ARRAY_ARSENAL > /dev/null
+
+
+### Forums action
+*/20 * * * * cd $DEIMOSCLI && $PHP forumWebService.php --action join48h
+*/15 * * * * cd $DEIMOSCLI && $PHP forumWebService.php --action fetch_group_members
+
+
+
+#### /DEIMOS CORP ####

@@ -1,4 +1,4 @@
-www.Deim.fr
+www.Deim.fr - Public Repository
 ======
 
 <center><a href="http://deim.fr"><img src="http://i.imgur.com/iTGnaIU.png"></a></center>

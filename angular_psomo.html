@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+		<script src="http://getbootstrap.com/dist/js/bootstrap.js"></script>
+		<link href="http://getbootstrap.com/dist/css/bootstrap.css" rel="stylesheet">
+	</head>
+	<body>
+
+		<div class="container psomo-root" ng-app="" outfitId="37509488620607089" ng-controller="PsomoController">
+			<h2></h2>
+			<p>Count: <span class="badge count">{{outfitOnlineMemberList.length}}</span></p>
+			<ul>
+				<li ng-repeat="outfitOnlineMember in outfitOnlineMemberList">
+				{{outfitOnlineMember.character.name.first}}
+				</li>
+			</ul>
+			<form ng-submit="censusCall()">
+				<input class="btn-primary" type="submit" value="fetch">
+			</form>
+		</div>
+
+
+		<script type="text/javascript">
+
+		// This page is a sample code leting you display your members curently online based on the Planetside2 Census API, change outfitId= to match yours
+		function PsomoController($scope, $element, $http)
+		{
+			$scope.outfitMemberList = [];
+			$scope.outfitOnlineMemberList = [];
+
+			$scope.addItem = function(item)
+			{
+				$scope.outfitMemberList.push(item);
+				if(item.online_status!="0")
+				$scope.outfitOnlineMemberList.push(item);
+				$scope.todoText = '';
+			};
+
+			$scope.censusCall = function()
+			{
+				$http
+					.jsonp("https://census.soe.com/s:soe/get/ps2-beta/outfit_member/"+$($element).attr('outfitId')+"?c:resolve=online_status,character(name.first),outfit(id,alias,name)&c:start=0&c:limit=99999999&callback=JSON_CALLBACK")
+					.success(function(data, status, headers, config){
+						if(typeof data.outfit_member_list != "undefinned")
+						{
+							angular.forEach(data.outfit_member_list, function(outfitMember){
+								$scope.addItem(outfitMember);
+							});
+						}
+					})
+				;
+			};
+		}
+		</script>
+	</body>
+</html>

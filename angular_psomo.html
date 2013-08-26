@@ -41,7 +41,7 @@
 			$scope.censusCall = function()
 			{
 				$http
-					.jsonp("https://census.soe.com/s:deimoscorp/get/ps2-beta/outfit_member/"+$($element).attr('outfitId')+"?c:resolve=online_status,character(name.first),outfit(id,alias,name)&c:start=0&c:limit=99999999&callback=JSON_CALLBACK")
+					.jsonp("https://census.soe.com/s:soe/get/ps2-beta/outfit_member/"+$($element).attr('outfitId')+"?c:resolve=online_status,character(name.first),outfit(id,alias,name)&c:start=0&c:limit=99999999&callback=JSON_CALLBACK")
 					.success(function(data, status, headers, config){
 						if(typeof data.outfit_member_list != "undefinned")
 						{

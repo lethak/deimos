@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
+		<script src="http://getbootstrap.com/dist/js/bootstrap.js"></script>
+		<link href="http://getbootstrap.com/dist/css/bootstrap.css" rel="stylesheet">
+	</head>
+	<body class="container" ng-app="DeimosNg">
+
+
+<div outfitId="37509488620607089" ng-controller="PsomoController">
+	<h2></h2>
+	<p>Count: <span class="badge count">{{outfitOnlineMemberList.length}}</span></p>
+	<ul>
+		<li ng-repeat="outfitOnlineMember in outfitOnlineMemberList">
+			{{outfitOnlineMember.character.name.first}}
+		</li>
+	</ul>
+</div>
+
+<div outfitId="37509488620607089" ng-controller="PsomoController">
+	<h2></h2>
+	<p>Count: <span class="badge count">{{outfitOnlineMemberList.length}}</span></p>
+	<ul>
+		<li ng-repeat="outfitOnlineMember in outfitOnlineMemberList">
+			{{outfitOnlineMember.character.name.first}}
+		</li>
+	</ul>
+</div>
+
+
+<script type="text/javascript">
+	//@see http://stackoverflow.com/questions/9293423/can-one-controller-call-another-in-angularjs
+
+	angular.module('DeimosNg.service', []);
+	angular.module('DeimosNg.directive', []);
+	angular.module('DeimosNg.filter', []);
+
+	var DeimosNg = angular.module('DeimosNg', ['DeimosNg.service','DeimosNg.directive','DeimosNg.filter'])
+		.run(function(){
+
+		})
+	;
+
+	DeimosNg.factory('PscanDataService', function(){
+		return{
+			outfitMemberList: {},
+			outfitOnlineMemberList: {},
+			outfitMemberList_lastCallSuccess: {}
+		};
+	});
+
+	// This page is a sample code leting you display your members curently online based on the Planetside2 Census API, change outfitId= to match yours
+	function PsomoController($scope, $element, $http, PscanDataService)
+	{
+		$scope.outfitId = ''+$($element).attr('outfitId');
+
+		if(typeof PscanDataService.outfitMemberList[$scope.outfitId]=="undefined")
+			PscanDataService.outfitMemberList[$scope.outfitId] = [];
+		if(typeof PscanDataService.outfitOnlineMemberList[$scope.outfitId]=="undefined")
+			PscanDataService.outfitOnlineMemberList[$scope.outfitId] = [];
+
+		if(typeof PscanDataService.outfitMemberList_lastCallSuccess[$scope.outfitId]=="undefined")
+			PscanDataService.outfitMemberList_lastCallSuccess[$scope.outfitId] = 0;
+
+		$scope.outfitMemberList = PscanDataService.outfitMemberList[$scope.outfitId];
+		$scope.outfitOnlineMemberList = PscanDataService.outfitOnlineMemberList[$scope.outfitId];
+	 
+		$scope.addItem = function(item)
+		{
+			$scope.outfitMemberList.push(item);
+			if(item.online_status!="0") 
+				$scope.outfitOnlineMemberList.push(item);
+			todoText = '';
+
+		};
+	 
+		$scope.censusCall = function()
+		{
+
+			if( Math.ceil(new Date().getTime()/1) - PscanDataService.outfitMemberList_lastCallSuccess[$scope.outfitId] >= 2000 )
+			{
+				PscanDataService.outfitMemberList_lastCallSuccess[$scope.outfitId] = Math.ceil(new Date().getTime()/1);
+				$http
+					.jsonp("https://census.soe.com/s:soe/get/ps2:v2/outfit_member/?outfit_id="+$scope.outfitId+"&c:resolve=online_status,character(name.first),outfit(id,alias,name)&c:start=0&c:limit=99999999&callback=JSON_CALLBACK")
+					.success(function(data, status, headers, config){
+						if(typeof data.outfit_member_list != "undefined")
+						{
+							angular.forEach(data.outfit_member_list, function(outfitMember){
+								$scope.addItem(outfitMember);
+							});
+						}
+					})
+				;
+			}
+		};
+
+		$scope.censusCall();
+	}
+
+</script>
+	</body>
+</html>

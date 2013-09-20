@@ -321,7 +321,7 @@ namespace PRoConEvents
 			if(doAction)
 			{
 				// todo stuff ...
-				Action
+				Action.teamspeakText(speakerPlayerName, message);
 			}
 		}
 

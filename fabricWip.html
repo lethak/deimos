@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Learning the basics of canvas</title>
+		<meta charset="utf-8">
+
+		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.3.0/fabric.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+		<script type="text/javascript">
+			var canvas = ctx = null;
+
+
+			var DeimSiggen =
+			{
+				fabCan: null,
+				groups: [],
+				objects:function(){return DeimSiggen.fabCan._objects;},
+				init: function(canvasId)
+				{
+					DeimSiggen.fabCan = new fabric.Canvas(canvasId);
+					DeimSiggen.registerEvents();
+
+
+
+				},
+
+
+				registerEvents: function()
+				{
+					/*$('.addObjBtn').on('click', function(e){
+						e.stopPropagation();
+						
+						
+						DeimSiggen.svg.import("file:////home/rsouverain/__Projets/somi/canvas/1.svg");
+
+						//DeimSiggen.fabCan.trigger('object:_created', {target:obj});
+
+						return false;
+					});*/
+
+
+					$('#imgLoader').on('change', function(e)
+					{
+						var reader = new FileReader();
+						reader.onload = function (event)
+						{
+							var imgObj = new Image();
+							imgObj.src = event.target.result;
+							imgObj.onload = function (e)
+							{
+								var image = new fabric.Image(imgObj);
+								image.set({
+									left: 100,
+									top: 100,
+									angle: 0,
+									padding: 5,
+									cornersize: 0
+								});
+								DeimSiggen.fabCan.add(image);
+							}
+						}
+						var iImg = e.target.files[0];
+						console.log(iImg);
+						reader.readAsDataURL(iImg);
+					});
+
+
+					DeimSiggen.fabCan.on('object:_created', 			DeimSiggen.on.object._created			);
+					DeimSiggen.fabCan.on('object:modified', 			DeimSiggen.on.object.modified			);
+					DeimSiggen.fabCan.on('object:selected', 			DeimSiggen.on.object.selected			);
+					DeimSiggen.fabCan.on('object:moving', 				DeimSiggen.on.object.moving				);
+					DeimSiggen.fabCan.on('object:scaling', 				DeimSiggen.on.object.scaling			);
+					DeimSiggen.fabCan.on('object:rotating', 			DeimSiggen.on.object.rotating			);
+					DeimSiggen.fabCan.on('object:over', 				DeimSiggen.on.object.over				);
+					DeimSiggen.fabCan.on('object:out', 					DeimSiggen.on.object.out				);
+					DeimSiggen.fabCan.on('selection:cleared', 			DeimSiggen.on.selection.cleared			);
+					DeimSiggen.fabCan.on('before:selection:cleared', 	DeimSiggen.on.selection.clearedAfter	);
+					DeimSiggen.fabCan.on('selection:created', 			DeimSiggen.on.selection.created			);
+					DeimSiggen.fabCan.on('mouse:up', 					DeimSiggen.on.mouse.up					);
+					DeimSiggen.fabCan.on('mouse:down', 					DeimSiggen.on.mouse.down				);
+					DeimSiggen.fabCan.on('mouse:move', 					DeimSiggen.on.mouse.move				);
+					DeimSiggen.fabCan.on('after:render', 				DeimSiggen.on.render.after				);
+
+				},
+
+				on: 
+				{
+					object:
+					{
+						_created: function(e){
+						},
+						modified: function(e){
+						},
+						selected: function(e){
+						},
+						moving: function(e){
+						},
+						scaling: function(e){
+						},
+						rotating: function(e){
+						},
+						over: function(e){
+						},
+						out: function(e){
+						}
+					},
+					selection:
+					{
+						cleared: function(e){
+						},
+						clearedAfter: function(e){
+						},
+						created: function(e){
+						}
+					},
+					mouse:
+					{
+						up: function(e){
+						},
+						down: function(e){
+						},
+						move: function(e){
+						}
+					},
+					render:
+					{
+						after: function(e){
+							DeimSiggen.refreshObjectList();
+						}
+					}
+				},
+
+
+				refreshObjectList: function()
+				{
+					//DeimSiggen.objectList = DeimSiggen.fabCan.toObject().objects;
+					$('.domObjectList ul').html('');
+
+					jQuery.each(DeimSiggen.objects(), function(i,v){
+						$('.domObjectList ul')
+							.append('<li objid="'+i+'"> Object('+i+') <span class="removable">[x]</span> Selectable: <span class="selectable">'+v.selectable+'</span> <span class="upable">[^]</span></li>')
+						;
+					});
+
+					$('.selectable').on('click', function(e){
+						var objid = $(this).parent('[objid]').attr('objid');
+						DeimSiggen.objects()[objid].selectable = !DeimSiggen.objects()[objid].selectable;
+					})
+
+					$('.upable').on('click', function(e){
+						var objid = $(this).parent('[objid]').attr('objid');
+						DeimSiggen.bringUp(objid);
+					})
+
+					$('.removable').on('click', function(e){
+						var objid = $(this).parent('[objid]').attr('objid');
+						DeimSiggen.removeObj(objid);
+					})
+				},
+
+				svg:
+				{
+					groups: null,
+					import: function(fileUrl)
+					{
+						DeimSiggen.svg.groups = [];
+						fabric.loadSVGFromURL(
+							fileUrl,
+							function(objects,options)
+							{
+								var Group = new fabric.Group(DeimSiggen.svg.groups);
+								DeimSiggen.svg.groups = [];
+								Group.set({
+									left: 100,
+									top: 100,
+									width:175,
+									height:175
+								});
+
+								DeimSiggen.fabCan.add(Group);
+								DeimSiggen.fabCan.renderAll();
+							},
+							function(item, object)
+							{
+								object.set('id',item.getAttribute('id'));
+								DeimSiggen.svg.groups.push(object);
+							}
+						);
+					}
+
+				},
+
+
+				sendToBack: function(objid){
+					DeimSiggen.fabCan.sendToBack(DeimSiggen.objects()[objid]);
+				},
+				bringToFront: function(objid){
+					DeimSiggen.fabCan.bringToFront(DeimSiggen.objects()[objid]);
+				},
+				bringUp: function(objid){
+					DeimSiggen.fabCan.bringForward(DeimSiggen.objects()[objid]);
+				},
+				removeObj: function(objid){
+					DeimSiggen.fabCan.remove(DeimSiggen.objects()[objid]);
+				},
+
+			};
+
+
+
+			// EXEC
+		
+			$(document).ready(function() {
+
+				DeimSiggen.init('c1');
+
+			});
+		</script>
+	</head>
+
+	<body>
+		<canvas id="c1" width="300" height="300" style="border:1px solid #000000">
+			<!-- Insert fallback content here -->
+			Canvas not suported
+		</canvas>
+		<div>
+			<input type="file" id="imgLoader"><br>
+			<a class="addObjBtn" href="#add">Add Object</a>
+		</div>
+		<div class="domObjectList">
+			<ul>
+			</ul>
+		</div>
+		<img src=""/>
+	</body>
+</html>

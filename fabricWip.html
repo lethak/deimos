@@ -7,6 +7,9 @@
 		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.3.0/fabric.min.js"></script>
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 
+		<script type="text/javascript" src="http://deim.fr/public/js/bootstrap/bs3/bootstrap.min.js?v=kim-1"></script>
+		<link rel="stylesheet" type="text/css" href="http://deim.fr/public/layouts/deimos/css/bs3/bootstrap-dc.min.css?v=kim-1">
+
 		<script type="text/javascript">
 			var canvas = ctx = null;
 
@@ -21,7 +24,7 @@
 					DeimSiggen.fabCan = new fabric.Canvas(canvasId);
 					DeimSiggen.registerEvents();
 
-
+					$('#imgLoader').hide();
 
 				},
 
@@ -65,6 +68,12 @@
 						reader.readAsDataURL(iImg);
 					});
 
+					$('.addLayer').on('click', function(e){
+						e.stopPropagation();
+						$('#imgLoader').click();
+						return false;
+					});
+
 
 					DeimSiggen.fabCan.on('object:_created', 			DeimSiggen.on.object._created			);
 					DeimSiggen.fabCan.on('object:modified', 			DeimSiggen.on.object.modified			);
@@ -81,6 +90,49 @@
 					DeimSiggen.fabCan.on('mouse:down', 					DeimSiggen.on.mouse.down				);
 					DeimSiggen.fabCan.on('mouse:move', 					DeimSiggen.on.mouse.move				);
 					DeimSiggen.fabCan.on('after:render', 				DeimSiggen.on.render.after				);
+
+					$('.fabCanSizePreset')
+						.on('click', function(e){
+							e.stopPropagation();
+							$('#cSizeW').val(parseInt($(this).attr('tw'))).change();
+							$('#cSizeH').val(parseInt($(this).attr('th'))).change();
+							return false;
+						})
+					;
+
+					$('#cSizeW')
+						.on('change', function(e){
+							var max = parseInt($(this).attr('max'));
+							var val = parseInt($(this).val());
+							if(isNaN(val) || val>max || val<10){
+								val = max;
+								$(this).val(max);
+							}
+							$(this).val(val);
+							DeimSiggen.fabCan.setWidth(val);
+							DeimSiggen.fabCan.renderAll();
+						})
+						.on('focus', function(e){$(this).select()})
+						.val(DeimSiggen.fabCan.width)
+					;
+
+					$('#cSizeH')
+						.on('change', function(e){
+							var max = parseInt($(this).attr('max'));
+							var val = parseInt($(this).val());
+							if(isNaN(val) || val>max || val<10){
+								val = max;
+								$(this).val(max);
+							}
+							$(this).val(val);
+							DeimSiggen.fabCan.setHeight(val);
+							DeimSiggen.fabCan.renderAll();
+						})
+						.on('focus', function(e){$(this).select()})
+						.val(DeimSiggen.fabCan.width)
+					;
+
+
 
 				},
 
@@ -135,28 +187,46 @@
 				refreshObjectList: function()
 				{
 					//DeimSiggen.objectList = DeimSiggen.fabCan.toObject().objects;
-					$('.domObjectList ul').html('');
+					$('.domObjectList').html('');
 
 					jQuery.each(DeimSiggen.objects(), function(i,v){
-						$('.domObjectList ul')
-							.append('<li objid="'+i+'"> Object('+i+') <span class="removable">[x]</span> Selectable: <span class="selectable">'+v.selectable+'</span> <span class="upable">[^]</span></li>')
+
+						var $btnGroup = $('<div class="btn-group btn-group-xs pull-right"></div>')
+							.append('<button type="button" class="btn btn-default upable">^</button>')
+							.append('<button type="button" class="btn btn-default selectable '+v.selectable+'">L</button>')
+							.append('<button type="button" class="btn btn-default removable" >X</button>')
+						;
+
+						$('.domObjectList')
+							.append($('<li objid="'+i+'" class="list-group-item">'+i+'</li>').append($btnGroup))
 						;
 					});
 
 					$('.selectable').on('click', function(e){
-						var objid = $(this).parent('[objid]').attr('objid');
+						var objid = $($(this).parents('[objid]').get(0)).attr('objid');
 						DeimSiggen.objects()[objid].selectable = !DeimSiggen.objects()[objid].selectable;
 					})
 
 					$('.upable').on('click', function(e){
-						var objid = $(this).parent('[objid]').attr('objid');
+						var objid = $($(this).parents('[objid]').get(0)).attr('objid');
 						DeimSiggen.bringUp(objid);
 					})
 
 					$('.removable').on('click', function(e){
-						var objid = $(this).parent('[objid]').attr('objid');
+						var objid = $($(this).parents('[objid]').get(0)).attr('objid');
 						DeimSiggen.removeObj(objid);
 					})
+
+					$('.domObjectList li[objid]').on('click', function(e){
+						e.stopPropagation();
+						var objid = $(this).attr('objid');
+						DeimSiggen.selectObj(objid);
+						return false;
+					});
+
+					$('.layerCount').html(DeimSiggen.objects().length);
+
+					
 				},
 
 				svg:
@@ -204,6 +274,9 @@
 				removeObj: function(objid){
 					DeimSiggen.fabCan.remove(DeimSiggen.objects()[objid]);
 				},
+				selectObj: function(objid){
+					DeimSiggen.fabCan.setActiveObject(DeimSiggen.objects()[objid]);
+				},
 
 			};
 
@@ -220,18 +293,148 @@
 	</head>
 
 	<body>
-		<canvas id="c1" width="300" height="300" style="border:1px solid #000000">
-			<!-- Insert fallback content here -->
-			Canvas not suported
-		</canvas>
-		<div>
-			<input type="file" id="imgLoader"><br>
-			<a class="addObjBtn" href="#add">Add Object</a>
-		</div>
-		<div class="domObjectList">
-			<ul>
-			</ul>
-		</div>
-		<img src=""/>
+
+
+
+		<div class="well">
+			<div class="row">
+				<div class="col-md-3">
+					<div class="panel panel-default">
+						<div class="panel-heading">Template name</div>
+						<div class="panel-body">Lorem</div>
+					</div><!-- endpanel -->
+				</div><!-- endcol -->
+				<div class="col-md-3">
+					<div class="panel panel-default">
+						<div class="panel-heading">Template name</div>
+						<div class="panel-body">Lorem</div>
+					</div><!-- endpanel -->
+				</div><!-- endcol -->
+				<div class="col-md-3">
+					<div class="panel panel-default">
+						<div class="panel-heading">Template name</div>
+						<div class="panel-body">Lorem</div>
+					</div><!-- endpanel -->
+				</div><!-- endcol -->
+				<div class="col-md-3">
+					<div class="panel panel-default">
+						<div class="panel-heading">Template name</div>
+						<div class="panel-body">Lorem</div>
+					</div><!-- endpanel -->
+				</div><!-- endcol -->
+			</div><!-- endrow -->
+
+			<div class="row">
+
+				<div class="col-md-2">
+					<div class="panel panel-default">
+						<div class="panel-heading">Size settings</div>
+						<div class="panel-body">
+							<div class="row">
+								<div class="col-lg-6">
+									<div class="form-group "><input type="text" max="850" id="cSizeW" class="form-control input-sm" placeholder="W"></div>
+								</div>
+								<div class="col-lg-6">
+									<div class="form-group "><input type="text" max="600" id="cSizeH" class="form-control input-sm" placeholder="H"></div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-lg-12">
+									  <a href="#size" class="fabCanSizePreset" tw="600" th="110">DEIM</a>
+									| <a href="#size" class="fabCanSizePreset" tw="450" th="100">PSU</a>
+									| <a href="#size" class="fabCanSizePreset" tw="350" th="20">Userbar</a>
+									| <a href="#size" class="fabCanSizePreset" tw="99999" th="99999">max</a>
+								</div>
+							</div>
+						</div>
+					</div><!-- endpanel -->
+
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							Layers <button type="button" class="btn btn-default btn-xs addLayer">+</button> <span class="layerCount badge pull-right">0</span>
+						</div>
+						<div class="panel-body">
+							<ul class="list-group domObjectList">
+							</ul>
+						</div>
+					</div><!-- endpanel -->
+				</div><!-- endcol -->
+
+
+				<div class="col-md-10">
+
+					<div class="row">
+						<div class="col-md-12">
+							<center>
+							<input type="file" id="imgLoader"><br>
+							<canvas id="c1" width="600" height="110" style="border:1px solid #000000">
+								<!-- Insert fallback content here -->
+								Canvas not suported
+							</canvas>
+							</center>
+						</div><!-- endcol -->
+					</div><!-- endrow -->
+					<br/>
+					<div class="row">
+						<div class="col-md-4">
+							<center>
+							<div class="panel panel-default">
+								<div class="panel-heading">Static prefabs</div>
+								<div class="panel-body">
+									<ul class="nav">
+										<li>Lorem</li>
+										<li>Lorem</li>
+										<li>Lorem</li>
+										<li>Lorem</li>
+										<li>Lorem</li>
+									</ul>
+								</div>
+							</div><!-- endpanel -->
+							</center>
+						</div><!-- endcol -->
+						<div class="col-md-4">
+							<center>
+							<div class="panel panel-default">
+								<div class="panel-heading">Character stats</div>
+								<div class="panel-body">
+									<ul class="nav">
+										<li>Lorem</li>
+										<li>Lorem</li>
+										<li>Lorem</li>
+										<li>Lorem</li>
+										<li>Lorem</li>
+									</ul>
+								</div>
+							</div><!-- endpanel -->
+							</center>
+						</div><!-- endcol -->
+						<div class="col-md-4">
+							<center>
+							<div class="panel panel-default">
+								<div class="panel-heading">Outfit stats</div>
+								<div class="panel-body">
+									<ul class="nav">
+										<li>Lorem</li>
+										<li>Lorem</li>
+										<li>Lorem</li>
+										<li>Lorem</li>
+										<li>Lorem</li>
+									</ul>
+								</div>
+							</div><!-- endpanel -->
+							</center>
+						</div><!-- endcol -->
+					</div><!-- endrow -->
+
+				</div><!-- endcol -->
+
+			</div><!-- endrow -->
+
+
+		</div><!-- endwell -->
+
+
+
+
 	</body>
 </html>

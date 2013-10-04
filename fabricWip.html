@@ -10,6 +10,11 @@
 		<script type="text/javascript" src="http://deim.fr/public/js/bootstrap/bs3/bootstrap.min.js?v=kim-1"></script>
 		<link rel="stylesheet" type="text/css" href="http://deim.fr/public/layouts/deimos/css/bs3/bootstrap-dc.min.css?v=kim-1">
 
+	</head>
+
+	<body>
+
+
 		<script type="text/javascript">
 			var canvas = ctx = null;
 
@@ -17,6 +22,7 @@
 			var DeimSiggen =
 			{
 				fabCan: null,
+				scrollTimout: null,
 				groups: [],
 				objects:function(){return DeimSiggen.fabCan._objects;},
 				init: function(canvasId)
@@ -25,6 +31,7 @@
 					DeimSiggen.registerEvents();
 
 					$('#imgLoader').hide();
+
 
 				},
 
@@ -41,6 +48,11 @@
 
 						return false;
 					});*/
+
+					$(window).on('scroll', function(e){
+						clearTimeout(DeimSiggen.scrollTimout);
+						DeimSiggen.scrollTimout = setTimeout(function(){$('#cSizeH').change();},150);
+					});
 
 
 					$('#imgLoader').on('change', function(e)
@@ -129,7 +141,7 @@
 							DeimSiggen.fabCan.renderAll();
 						})
 						.on('focus', function(e){$(this).select()})
-						.val(DeimSiggen.fabCan.width)
+						.val(DeimSiggen.fabCan.height)
 					;
 
 
@@ -290,33 +302,43 @@
 
 			});
 		</script>
-	</head>
 
-	<body>
 
 
 
 		<div class="well">
-			<div class="row">
-				<div class="col-md-3">
+			<div class="row well">
+				<div class="col-md-2">
 					<div class="panel panel-default">
 						<div class="panel-heading">Template name</div>
 						<div class="panel-body">Lorem</div>
 					</div><!-- endpanel -->
 				</div><!-- endcol -->
-				<div class="col-md-3">
+				<div class="col-md-2">
 					<div class="panel panel-default">
 						<div class="panel-heading">Template name</div>
 						<div class="panel-body">Lorem</div>
 					</div><!-- endpanel -->
 				</div><!-- endcol -->
-				<div class="col-md-3">
+				<div class="col-md-2">
 					<div class="panel panel-default">
 						<div class="panel-heading">Template name</div>
 						<div class="panel-body">Lorem</div>
 					</div><!-- endpanel -->
 				</div><!-- endcol -->
-				<div class="col-md-3">
+				<div class="col-md-2">
+					<div class="panel panel-default">
+						<div class="panel-heading">Template name</div>
+						<div class="panel-body">Lorem</div>
+					</div><!-- endpanel -->
+				</div><!-- endcol -->
+				<div class="col-md-2">
+					<div class="panel panel-default">
+						<div class="panel-heading">Template name</div>
+						<div class="panel-body">Lorem</div>
+					</div><!-- endpanel -->
+				</div><!-- endcol -->
+				<div class="col-md-2">
 					<div class="panel panel-default">
 						<div class="panel-heading">Template name</div>
 						<div class="panel-body">Lorem</div>
@@ -326,16 +348,26 @@
 
 			<div class="row">
 
-				<div class="col-md-2">
+				<div class="col-md-2 well">
+
+					<div class="panel panel-danger gameCharacter-panel">
+						<div class="panel-heading">
+							Game character
+						</div>
+						<div class="panel-body">
+							<input type="text" max="850" id="gameCharacter" class="form-control input-sm" placeholder="Nickname..." autocomplete="off">
+						</div>
+					</div><!-- endpanel -->
+
 					<div class="panel panel-default">
 						<div class="panel-heading">Size settings</div>
 						<div class="panel-body">
 							<div class="row">
 								<div class="col-lg-6">
-									<div class="form-group "><input type="text" max="850" id="cSizeW" class="form-control input-sm" placeholder="W"></div>
+									<div class="form-group "><input type="text" max="850" id="cSizeW" class="form-control input-sm" placeholder="W" autocomplete="off"></div>
 								</div>
 								<div class="col-lg-6">
-									<div class="form-group "><input type="text" max="600" id="cSizeH" class="form-control input-sm" placeholder="H"></div>
+									<div class="form-group "><input type="text" max="600" id="cSizeH" class="form-control input-sm" placeholder="H" autocomplete="off"></div>
 								</div>
 							</div>
 							<div class="row">
@@ -365,9 +397,9 @@
 
 					<div class="row">
 						<div class="col-md-12">
-							<center>
+							<center class="well">
 							<input type="file" id="imgLoader"><br>
-							<canvas id="c1" width="600" height="110" style="border:1px solid #000000">
+							<canvas id="c1" width="600" height="110" style="border:1px solid #000000;" class="">
 								<!-- Insert fallback content here -->
 								Canvas not suported
 							</canvas>
@@ -376,10 +408,10 @@
 					</div><!-- endrow -->
 					<br/>
 					<div class="row">
-						<div class="col-md-4">
+						<div class="col-md-8 ">
 							<center>
 							<div class="panel panel-default">
-								<div class="panel-heading">Static prefabs</div>
+								<div class="panel-heading">Add static element</div>
 								<div class="panel-body">
 									<ul class="nav">
 										<li>Lorem</li>
@@ -392,33 +424,39 @@
 							</div><!-- endpanel -->
 							</center>
 						</div><!-- endcol -->
-						<div class="col-md-4">
+						<div class="col-md-2">
 							<center>
 							<div class="panel panel-default">
-								<div class="panel-heading">Character stats</div>
+								<div class="panel-heading">Add character stat</div>
 								<div class="panel-body">
 									<ul class="nav">
-										<li>Lorem</li>
-										<li>Lorem</li>
-										<li>Lorem</li>
-										<li>Lorem</li>
-										<li>Lorem</li>
+										<li><a href="#add" data-value="nicknameValue"> { Nickname }			</a></li>
+										<li><a href="#add" data-value="serverValue"> { Server }			</a></li>
+										<li><a href="#add" data-value="brValue"> { Battle Rank }			</a></li>
+										<li><a href="#add" data-value="brVL"> B/R: {value}			</a></li>
+										<li><a href="#add" data-value="xpValue"> { XP }			</a></li>
+										<li><a href="#add" data-value="xpVL"> XP: {value}		</a></li>
+										<li><a href="#add" data-value="kdValue"> { K/D }			</a></li>
+										<li><a href="#add" data-value="kdVL"> K/D: {value}			</a></li>
+										<li><a href="#add" data-value="xpmValue"> { XP/Min }			</a></li>
+										<li><a href="#add" data-value="xpmVL"> XP/Min: {value}			</a></li>
+										<li><a href="#add" data-value="playedVL"> Played: {value}			</a></li>
+										<li><a href="#add" data-value="createdVL"> Created: {value}			</a></li>
+										<li><a href="#add" data-value="lastonVL"> Last on: {value}			</a></li>
 									</ul>
 								</div>
 							</div><!-- endpanel -->
 							</center>
 						</div><!-- endcol -->
-						<div class="col-md-4">
+						<div class="col-md-2">
 							<center>
 							<div class="panel panel-default">
-								<div class="panel-heading">Outfit stats</div>
+								<div class="panel-heading">Add outfit stat</div>
 								<div class="panel-body">
 									<ul class="nav">
-										<li>Lorem</li>
-										<li>Lorem</li>
-										<li>Lorem</li>
-										<li>Lorem</li>
-										<li>Lorem</li>
+										<li><a href="#add" data-value="outfitnameValue">{Name}</a></li>
+										<li><a href="#add" data-value="outfitaliasValue">{Alias}</a></li>
+										<li><a href="#add" data-value="outfitnamecomboValue">[{Alias}] {Name}</a></li>
 									</ul>
 								</div>
 							</div><!-- endpanel -->
@@ -432,6 +470,10 @@
 
 
 		</div><!-- endwell -->
+
+
+
+
 
 
 

@@ -32,6 +32,76 @@
 				fabCan: null,
 				scrollTimout: null,
 				groups: [],
+
+				dynamicElementListChar: [
+					{
+						dynamicValueKey:'char.name',
+						dynamicValueValue:'',
+						dynamicValueListText:'Nickname',
+					},
+					{
+						dynamicValueKey:'char.server',
+						dynamicValueValue:'',
+						dynamicValueListText:'ServerName',
+					},
+					{
+						dynamicValueKey:'char.br',
+						dynamicValueValue:'',
+						dynamicValueListText:'BattleRankLevel',
+					},
+					{
+						dynamicValueKey:'char.xp',
+						dynamicValueValue:'',
+						dynamicValueListText:'XPAmount',
+					},
+					{
+						dynamicValueKey:'char.kd',
+						dynamicValueValue:'',
+						dynamicValueListText:'KillDeathCount',
+					},
+					{
+						dynamicValueKey:'char.xpm',
+						dynamicValueValue:'',
+						dynamicValueListText:'XPAmmountPerMinute',
+					},
+					{
+						dynamicValueKey:'char.played',
+						dynamicValueValue:'',
+						dynamicValueListText:'TimePlayed',
+					},
+					{
+						dynamicValueKey:'char.created',
+						dynamicValueValue:'',
+						dynamicValueListText:'DateCreated',
+					},
+					{
+						dynamicValueKey:'char.lastonline',
+						dynamicValueValue:'',
+						dynamicValueListText:'DateLastOnline',
+					},
+				],
+
+
+
+
+				dynamicElementListOutfit: [
+					{
+						dynamicValueKey:'outfit.name',
+						dynamicValueValue:'',
+						dynamicValueListText:'Name',
+					},
+					{
+						dynamicValueKey:'outfit.alias',
+						dynamicValueValue:'',
+						dynamicValueListText:'Tag',
+					},
+					{
+						dynamicValueKey:'outfit.name-with-alias',
+						dynamicValueValue:'',
+						dynamicValueListText:'\[TAG\] Name',
+					},
+				],
+
 				objects:function(){return DeimSiggen.fabCan._objects;},
 				init: function(canvasId)
 				{
@@ -52,9 +122,20 @@
 						'http://i.imgur.com/e71FD.png',
 					];
 
+
 					jQuery.each(staticElementList, function(i,v){
 						$('ul.staticElementList').append('<li><a data-import-img="" href="#canvas1"><img src="'+v+'"></a></li>');
-					});					
+					});	
+
+
+					jQuery.each(DeimSiggen.dynamicElementListChar, function(i,v){
+						$('ul.dynElementListChar').append('<li><a href="#canvas1" dynamicValueKey="'+v.dynamicValueKey+'">'+v.dynamicValueListText+'</a></li>');
+					});
+
+
+					jQuery.each(DeimSiggen.dynamicElementListOutfit, function(i,v){
+						$('ul.dynElementListOutfit').append('<li><a href="#canvas1" dynamicValueKey="'+v.dynamicValueKey+'">'+v.dynamicValueListText+'</a></li>');
+					});
 
 					
 					DeimSiggen.fabCan = new fabric.Canvas(canvasId);
@@ -97,6 +178,12 @@
 						//return false;
 					});
 
+					$('.dynElementListChar a[dynamicvaluekey], .dynElementListOutfit a[dynamicvaluekey]').on('click', function(e){
+						e.stopPropagation();
+						DeimSiggen.import.dynamicValue($(this));
+						//return false;
+					});
+
 					$('.addLayer').on('click', function(e){
 						e.stopPropagation();
 						$('#imgLoader').click();
@@ -104,7 +191,7 @@
 					});
 
 
-					DeimSiggen.fabCan.on('object:_created', 			DeimSiggen.on.object._created			);
+					DeimSiggen.fabCan.on('object:added', 				DeimSiggen.on.object.added			);
 					DeimSiggen.fabCan.on('object:modified', 			DeimSiggen.on.object.modified			);
 					DeimSiggen.fabCan.on('object:selected', 			DeimSiggen.on.object.selected			);
 					DeimSiggen.fabCan.on('object:moving', 				DeimSiggen.on.object.moving				);
@@ -168,7 +255,9 @@
 				{
 					object:
 					{
-						_created: function(e){
+						added: function(e){
+							e.target.center();
+							e.target.adjustPosition('center');
 						},
 						modified: function(e){
 						},
@@ -277,6 +366,7 @@
 								});
 
 								DeimSiggen.fabCan.add(Group);
+								//DeimSiggen.fabCan.trigger('object:added', {target:Group});
 								DeimSiggen.fabCan.renderAll();
 							},
 							function(item, object)
@@ -295,7 +385,7 @@
 							var imgObj = new Image();
 							imgObj.onload = function (ee)
 							{
-								var image = new fabric.Image(ee.target);
+								var image = new DeimSiggenFabric.Image(ee.target);
 								image.set({
 									left: 100,
 									top: 100,
@@ -304,6 +394,7 @@
 									cornersize: 0
 								});
 								DeimSiggen.fabCan.add(image);
+								//DeimSiggen.fabCan.trigger('object:added', {target:image});
 							}
 							imgObj.src = event.target.result;
 						}
@@ -319,7 +410,7 @@
 						var imgObj = new Image;
 						imgObj.onload = function(ee)
 						{
-							var image = new fabric.Image(ee.target);
+							var image = new DeimSiggenFabric.Image(ee.target);
 							image.set({
 								left: 100,
 								top: 100,
@@ -328,8 +419,28 @@
 								cornersize: 0
 							});
 							DeimSiggen.fabCan.add(image);
+							//DeimSiggen.fabCan.trigger('object:added', {target:image});
 						};
 						imgObj.src = fileUrl;
+					},
+
+					dynamicValue: function($elem)
+					{
+						var dynElement = null;
+						var thisDynValueKey = $elem.attr('dynamicValueKey');
+
+						jQuery.each(DeimSiggen.dynamicElementListChar, function(i,v){
+							if(v.dynamicValueKey==thisDynValueKey)
+							dynElement = v;
+						});
+
+						jQuery.each(DeimSiggen.dynamicElementListOutfit, function(i,v){
+							if(v.dynamicValueKey==thisDynValueKey)
+							dynElement = v;
+						});
+
+						if(dynElement!==null)
+							DeimSiggen.fabCan.add(new DeimSiggenFabric.DynamicValueText(dynElement.dynamicValueKey, dynElement));
 					}
 
 				},
@@ -349,9 +460,115 @@
 				},
 				selectObj: function(objid){
 					DeimSiggen.fabCan.setActiveObject(DeimSiggen.objects()[objid]);
-				},
+				}
+
+
 
 			};
+
+			// SUBCLASSING
+			//USAGE: DeimSiggen.fabCan.add(new DeimSiggenFabric.labeledRect({width: 100,height: 50,left: 100,top: 100,label: 'test',fill: '#faa'}));
+
+			var DeimSiggenFabric = {};
+			
+
+			DeimSiggenFabric.Image = fabric.util.createClass(fabric.Image,
+			{
+				type: 'DeimSiggenFabric:Image',
+
+				initialize: function(options) {
+					options || (options = { });
+
+					this.callSuper('initialize', options);
+					this.set('isStatic', options.isStatic || true);
+				},
+
+				toObject: function() {
+					return fabric.util.object.extend(this.callSuper('toObject'), {
+						isStatic: this.get('isStatic'),
+					});
+				},
+
+				_render: function(ctx) {
+					this.callSuper('_render', ctx);
+				}
+			});
+			
+			DeimSiggenFabric.DynamicValueText = fabric.util.createClass(fabric.Text,
+			{
+				type: 'DeimSiggenFabric:DynamicValueText',
+
+				initialize: function(options) {
+					options || (options = { });
+
+					this.callSuper('initialize', options);
+					this.set('isStatic', options.isStatic || false);
+					this.set('dynamicValueKey', options.dynamicValueKey || this.get('text'));
+					this.set('dynamicValueValue', options.dynamicValueValue || this.get('dynamicValueKey'));
+					this.set('dynamicValuePlaceholderText', options.dynamicValuePlaceholderText || this.get('dynamicValueValue'));
+					this.set('dynamicValueListText', options.dynamicValueListText || '{ .dynamicValue }');
+					this.set('duplicateShadow', options.duplicateShadow || true);
+
+					this.set('opacity', 1);
+					this.set('fontFamily', 'Arial');
+					this.set('fontSize', options.fontSize  || 14);
+					this.set('fontStyle', 'normal');
+					this.set('fontWeight', 'bold');
+					this.set('textAlign', 'center');
+					this.set('stroke', null);
+					this.set('fill', '#FFFFFF');
+
+
+					this.set('borderColor', '#000000');
+					this.set('hasControls', false);
+					this.set('hasBorders', true);
+					this.set('hasRotatingPoint', false);
+					this.set('selectable', true);
+
+					this.set('shadow', {
+						color: '#000000',
+						blur: 0,    
+						offsetX: 1,
+						offsetY: 1,
+						opacity: 1,
+						fillShadow: true, 
+						strokeShadow: true 
+					});
+
+					this.set('top', 0);
+					this.set('left', 0);
+
+				},
+
+				toObject: function() {
+					return fabric.util.object.extend(this.callSuper('toObject'), {
+						isStatic: this.get('isStatic'),
+						dynamicValueKey: this.get('dynamicValueKey'),
+						//dynamicValueValue: this.get('dynamicValueValue'),
+						dynamicValuePlaceholderText: this.get('dynamicValuePlaceholderText'),
+						dynamicValueListText: this.get('dynamicValueListText'),
+					});
+				},
+
+				_render: function(ctx) {
+					this.callSuper('_render', ctx);
+					this.adjustPosition('center');
+					/*this.canvas.add(new DeimSiggenFabric.DynamicValueText('titititi',{
+						duplicateShadow: false,
+					}));*/
+					
+				}
+			});
+
+
+
+
+/*var text = canvas.add(new fabric.Text('I love fabricjs', { 
+    left: block.left, //Take the block's position
+    top: block.top, 
+    fill: 'white'
+}));*/
+
 
 
 
@@ -428,7 +645,7 @@
 									<div class="form-group "><input type="text" max="850" id="cSizeW" class="form-control input-sm" placeholder="W" autocomplete="off"></div>
 								</div>
 								<div class="col-lg-6">
-									<div class="form-group "><input type="text" max="600" id="cSizeH" class="form-control input-sm" placeholder="H" autocomplete="off"></div>
+									<div class="form-group "><input type="text" max="400" id="cSizeH" class="form-control input-sm" placeholder="H" autocomplete="off"></div>
 								</div>
 							</div>
 							<div class="row">
@@ -462,7 +679,7 @@
 							<input type="file" id="imgLoader"><br>
 							<canvas id="canvas1" name="canvas1" width="600" height="110" style="border:1px solid #000000;" class="">
 								<!-- Insert fallback content here -->
-								Canvas not suported
+								HTML5 - Canvas not suported
 							</canvas>
 							</center>
 						</div><!-- endcol -->
@@ -476,20 +693,8 @@
 							<div class="panel panel-default">
 								<div class="panel-heading">Add character stat</div>
 								<div class="panel-body">
-									<ul class="nav nav-pills">
-										<li><a href="#add" data-value="nicknameValue"> { Nickname }			</a></li>
-										<li><a href="#add" data-value="serverValue"> { Server }			</a></li>
-										<li><a href="#add" data-value="brValue"> { Battle Rank }			</a></li>
-										<li><a href="#add" data-value="brVL"> B/R: {value}			</a></li>
-										<li><a href="#add" data-value="xpValue"> { XP }			</a></li>
-										<li><a href="#add" data-value="xpVL"> XP: {value}		</a></li>
-										<li><a href="#add" data-value="kdValue"> { K/D }			</a></li>
-										<li><a href="#add" data-value="kdVL"> K/D: {value}			</a></li>
-										<li><a href="#add" data-value="xpmValue"> { XP/Min }			</a></li>
-										<li><a href="#add" data-value="xpmVL"> XP/Min: {value}			</a></li>
-										<li><a href="#add" data-value="playedVL"> Played: {value}			</a></li>
-										<li><a href="#add" data-value="createdVL"> Created: {value}			</a></li>
-										<li><a href="#add" data-value="lastonVL"> Last on: {value}			</a></li>
+									<ul class="nav nav-pills dynElementListChar">
+
 									</ul>
 								</div>
 							</div><!-- endpanel -->
@@ -500,10 +705,7 @@
 							<div class="panel panel-default">
 								<div class="panel-heading">Add outfit stat</div>
 								<div class="panel-body">
-									<ul class="nav nav-pills">
-										<li><a href="#add" data-value="outfitnameValue">{Name}</a></li>
-										<li><a href="#add" data-value="outfitaliasValue">{Alias}</a></li>
-										<li><a href="#add" data-value="outfitnamecomboValue">[{Alias}] {Name}</a></li>
+									<ul class="nav nav-pills dynElementListOutfit">
 									</ul>
 								</div>
 							</div><!-- endpanel -->

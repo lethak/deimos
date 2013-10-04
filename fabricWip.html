@@ -14,7 +14,14 @@
 
 	<body>
 
+		<style type="text/css">
 
+			.staticElementList [data-import-img] img{
+				max-width: 300px;
+				max-height: 150px;
+			}
+
+		</style>
 
 		<script type="text/javascript">
 			var canvas = ctx = null;
@@ -28,10 +35,33 @@
 				objects:function(){return DeimSiggen.fabCan._objects;},
 				init: function(canvasId)
 				{
+					var staticElementList = [
+						'http://i.imgur.com/DmKzgtK.jpg',
+						'http://i.imgur.com/e71FD.png',
+						'http://i.imgur.com/e71FD.png',
+						'http://i.imgur.com/DmKzgtK.jpg',
+						'http://i.imgur.com/e71FD.png',
+						'http://i.imgur.com/e71FD.png',
+						'http://i.imgur.com/DmKzgtK.jpg',
+						'http://i.imgur.com/e71FD.png',
+						'http://i.imgur.com/e71FD.png',
+						'http://i.imgur.com/DmKzgtK.jpg',
+						'http://i.imgur.com/e71FD.png',
+						'http://i.imgur.com/e71FD.png',
+						'http://i.imgur.com/e71FD.png',
+						'http://i.imgur.com/e71FD.png',
+					];
+
+					jQuery.each(staticElementList, function(i,v){
+						$('ul.staticElementList').append('<li><a data-import-img="" href="#canvas1"><img src="'+v+'"></a></li>');
+					});					
+
+					
 					DeimSiggen.fabCan = new fabric.Canvas(canvasId);
 					DeimSiggen.registerEvents();
 
 					$('#imgLoader').hide();
+
 
 
 				},
@@ -43,7 +73,7 @@
 						e.stopPropagation();
 						
 						
-						DeimSiggen.svg.import("file:////home/rsouverain/__Projets/somi/canvas/1.svg");
+						DeimSiggen.import.scg("file:////home/rsouverain/__Projets/somi/canvas/1.svg");
 
 						//DeimSiggen.fabCan.trigger('object:_created', {target:obj});
 
@@ -58,27 +88,13 @@
 
 					$('#imgLoader').on('change', function(e)
 					{
-						var reader = new FileReader();
-						reader.onload = function (event)
-						{
-							var imgObj = new Image();
-							imgObj.src = event.target.result;
-							imgObj.onload = function (e)
-							{
-								var image = new fabric.Image(imgObj);
-								image.set({
-									left: 100,
-									top: 100,
-									angle: 0,
-									padding: 5,
-									cornersize: 0
-								});
-								DeimSiggen.fabCan.add(image);
-							}
-						}
-						var iImg = e.target.files[0];
-						console.log(iImg);
-						reader.readAsDataURL(iImg);
+						DeimSiggen.import.localImage(e.target.files[0]);
+					});
+
+					$('.staticElementList [data-import-img] img').on('click', function(e){
+						e.stopPropagation();
+						DeimSiggen.import.remoteImage($(this).attr('src'));
+						//return false;
 					});
 
 					$('.addLayer').on('click', function(e){
@@ -144,7 +160,6 @@
 						.on('focus', function(e){$(this).select()})
 						.val(DeimSiggen.fabCan.height)
 					;
-
 
 
 				},
@@ -242,10 +257,10 @@
 					
 				},
 
-				svg:
+				import:
 				{
 					groups: null,
-					import: function(fileUrl)
+					svg: function(fileUrl)
 					{
 						DeimSiggen.svg.groups = [];
 						fabric.loadSVGFromURL(
@@ -270,6 +285,51 @@
 								DeimSiggen.svg.groups.push(object);
 							}
 						);
+					},
+
+					localImage: function(file)
+					{
+						var reader = new FileReader();
+						reader.onload = function (event)
+						{
+							var imgObj = new Image();
+							imgObj.onload = function (ee)
+							{
+								var image = new fabric.Image(ee.target);
+								image.set({
+									left: 100,
+									top: 100,
+									angle: 0,
+									padding: 5,
+									cornersize: 0
+								});
+								DeimSiggen.fabCan.add(image);
+							}
+							imgObj.src = event.target.result;
+						}
+						//var iImg = file;//||e.target.files[0];
+						/*if(typeof iImg !== "object")
+							var iImg = file;*/
+
+						reader.readAsDataURL(file);
+					},
+
+					remoteImage: function(fileUrl)
+					{
+						var imgObj = new Image;
+						imgObj.onload = function(ee)
+						{
+							var image = new fabric.Image(ee.target);
+							image.set({
+								left: 100,
+								top: 100,
+								angle: 0,
+								padding: 5,
+								cornersize: 0
+							});
+							DeimSiggen.fabCan.add(image);
+						};
+						imgObj.src = fileUrl;
 					}
 
 				},
@@ -299,7 +359,7 @@
 		
 			$(document).ready(function() {
 
-				DeimSiggen.init('c1');
+				DeimSiggen.init('canvas1');
 
 			});
 		</script>
@@ -400,7 +460,7 @@
 						<div class="col-md-12">
 							<center class="well">
 							<input type="file" id="imgLoader"><br>
-							<canvas id="c1" width="600" height="110" style="border:1px solid #000000;" class="">
+							<canvas id="canvas1" name="canvas1" width="600" height="110" style="border:1px solid #000000;" class="">
 								<!-- Insert fallback content here -->
 								Canvas not suported
 							</canvas>
@@ -457,12 +517,8 @@
 							<div class="panel panel-default">
 								<div class="panel-heading">Add static element</div>
 								<div class="panel-body">
-									<ul class="nav">
-										<li><a href="#add" data-value="xxxGraphic">Lorem</a></li>
-										<li><a href="#add" data-value="xxxGraphic">Lorem</a></li>
-										<li><a href="#add" data-value="xxxGraphic">Lorem</a></li>
-										<li><a href="#add" data-value="xxxGraphic">Lorem</a></li>
-										<li><a href="#add" data-value="xxxGraphic">Lorem</a></li>
+									<ul class="nav nav-pills staticElementList">
+										<!-- <li><a href="#add" data-import-img=""><img src="http://i.imgur.com/e71FD.png"></a></li> -->
 									</ul>
 								</div>
 							</div><!-- endpanel -->

@@ -1,6 +1,7 @@
 if(isServer || isDedicated) then
 {
-  ZeusGM setOwner (owner player);
-  ZeusGM2 setOwner (owner player);
-  //curator logic here ...
+ZeusGM setOwner (owner player);
+ZeusGM2 setOwner (owner player);
+ZeusGM addEventHandler ["CuratorObjectPlaced", {ZeusGM2 addCuratorEditableObjects [[(_this select 1)],true]}];
+ZeusGM2 addEventHandler ["CuratorObjectPlaced", {ZeusGM addCuratorEditableObjects [[(_this select 1)],true]}];
 };

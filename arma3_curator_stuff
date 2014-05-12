@@ -1,0 +1,6 @@
+if(isServer || isDedicated) then
+{
+  ZeusGM setOwner (owner player);
+  ZeusGM2 setOwner (owner player);
+  //curator logic here ...
+};
